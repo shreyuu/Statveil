@@ -1,16 +1,16 @@
+import '../features/quests/quest_model.dart';
+
 class ExpService {
-  static int calculateExp(String difficulty) {
+  static int expForDifficulty(Difficulty difficulty) {
     switch (difficulty) {
-      case 'Easy':
+      case Difficulty.easy:
         return 10;
-      case 'Medium':
+      case Difficulty.medium:
         return 25;
-      case 'Hard':
+      case Difficulty.hard:
         return 50;
-      case 'Boss':
+      case Difficulty.boss:
         return 100;
-      default:
-        return 0;
     }
   }
 }

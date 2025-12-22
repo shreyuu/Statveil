@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../models/hunter.dart';
+import '../../services/exp_service.dart';
+import '../quests/quest_model.dart';
+import '../quests/quest_service.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -10,10 +13,22 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   final Hunter hunter = Hunter();
+  late List<Quest> dailyQuests;
 
-  void _completeQuest() {
+  @override
+  void initState() {
+    super.initState();
+    dailyQuests = QuestService.getDailyQuests();
+  }
+
+  void completeQuest(Quest quest) {
+    if (quest.completed) return;
+
+    final exp = ExpService.expForDifficulty(quest.difficulty);
+
     setState(() {
-      hunter.gainExp(25); // Medium task simulation
+      quest.completed = true;
+      hunter.gainExp(exp, quest.stat);
     });
   }
 
@@ -30,29 +45,39 @@ class _DashboardScreenState extends State<DashboardScreen> {
               'Level ${hunter.level}',
               style: Theme.of(context).textTheme.headlineMedium,
             ),
-            const SizedBox(height: 8),
 
+            const SizedBox(height: 8),
             LinearProgressIndicator(
               value: hunter.currentExp / hunter.expToNextLevel,
             ),
 
-            const SizedBox(height: 16),
-            Text('EXP: ${hunter.currentExp}/${hunter.expToNextLevel}'),
-
             const SizedBox(height: 24),
-            Text('Stats', style: Theme.of(context).textTheme.titleLarge),
+            Text('Daily Quests', style: Theme.of(context).textTheme.titleLarge),
 
-            Text('STR: ${hunter.str}'),
-            Text('INT: ${hunter.intStat}'),
-            Text('AGI: ${hunter.agi}'),
-            Text('VIT: ${hunter.vit}'),
-            Text('WILL: ${hunter.will}'),
+            const SizedBox(height: 8),
 
-            const Spacer(),
+            Expanded(
+              child: ListView.builder(
+                itemCount: dailyQuests.length,
+                itemBuilder: (context, index) {
+                  final quest = dailyQuests[index];
 
-            ElevatedButton(
-              onPressed: _completeQuest,
-              child: const Text('Complete Quest (+25 EXP)'),
+                  return Card(
+                    child: ListTile(
+                      title: Text(quest.title),
+                      subtitle: Text(
+                        '${quest.stat} • ${quest.difficulty.name.toUpperCase()}',
+                      ),
+                      trailing: quest.completed
+                          ? const Icon(Icons.check, color: Colors.green)
+                          : ElevatedButton(
+                              onPressed: () => completeQuest(quest),
+                              child: const Text('Complete'),
+                            ),
+                    ),
+                  );
+                },
+              ),
             ),
           ],
         ),
