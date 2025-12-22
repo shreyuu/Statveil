@@ -20,8 +20,26 @@ class Hunter {
     this.will = 1,
   });
 
-  void gainExp(int exp) {
+  void gainExp(int exp, String stat) {
     currentExp += exp;
+
+    switch (stat) {
+      case 'STR':
+        str++;
+        break;
+      case 'INT':
+        intStat++;
+        break;
+      case 'AGI':
+        agi++;
+        break;
+      case 'VIT':
+        vit++;
+        break;
+      case 'WILL':
+        will++;
+        break;
+    }
 
     if (currentExp >= expToNextLevel) {
       levelUp();
