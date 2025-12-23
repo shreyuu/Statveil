@@ -9,6 +9,9 @@ class Hunter {
   int vit;
   int will;
 
+  int streak;
+  DateTime lastUpdated;
+
   Hunter({
     this.level = 1,
     this.currentExp = 0,
@@ -18,7 +21,9 @@ class Hunter {
     this.agi = 1,
     this.vit = 1,
     this.will = 1,
-  });
+    this.streak = 0,
+    DateTime? lastUpdated,
+  }) : lastUpdated = lastUpdated ?? DateTime.now();
 
   void gainExp(int exp, String stat) {
     currentExp += exp;
@@ -57,5 +62,21 @@ class Hunter {
     agi++;
     vit++;
     will++;
+  }
+
+  void applyPenalty({required bool allMissed}) {
+    if (allMissed) {
+      if (level > 1) level--;
+      currentExp = 0;
+      streak = 0;
+    } else {
+      currentExp -= 20;
+      if (currentExp < 0) currentExp = 0;
+      streak = 0;
+    }
+  }
+
+  void incrementStreak() {
+    streak++;
   }
 }
