@@ -3,6 +3,7 @@ import '../../models/hunter.dart';
 import '../../services/exp_service.dart';
 import '../quests/quest_model.dart';
 import '../quests/quest_service.dart';
+import '../../core/utils/daily_reset.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -19,6 +20,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
   void initState() {
     super.initState();
     dailyQuests = QuestService.getDailyQuests();
+
+    if (DailyReset.shouldReset(hunter.lastUpdated)) {
+      DailyReset.resetDay(hunter: hunter, dailyQuests: dailyQuests);
+    }
   }
 
   void completeQuest(Quest quest) {
@@ -50,6 +55,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
             LinearProgressIndicator(
               value: hunter.currentExp / hunter.expToNextLevel,
             ),
+
+            const SizedBox(height: 12),
+            Text('🔥 Streak: ${hunter.streak} days'),
 
             const SizedBox(height: 24),
             Text('Daily Quests', style: Theme.of(context).textTheme.titleLarge),
