@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:statveil/services/auth_service.dart';
 import '../../models/hunter.dart';
 import '../../services/exp_service.dart';
 import '../quests/quest_model.dart';
 import '../quests/quest_service.dart';
 import '../../core/utils/daily_reset.dart';
+import 'package:statveil/services/hunter_service.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -19,6 +21,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   void initState() {
     super.initState();
+    AuthService.signInAnon();
     dailyQuests = QuestService.getDailyQuests();
 
     if (DailyReset.shouldReset(hunter.lastUpdated)) {
@@ -35,6 +38,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       quest.completed = true;
       hunter.gainExp(exp, quest.stat);
     });
+    HunterService.saveHunter(hunter);
   }
 
   @override
