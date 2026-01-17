@@ -29,7 +29,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
-  void completeQuest(Quest quest) {
+  Future<void> completeQuest(Quest quest) async {
     if (quest.completed) return;
 
     final exp = ExpService.expForDifficulty(quest.difficulty);
@@ -38,7 +38,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
       quest.completed = true;
       hunter.gainExp(exp, quest.stat);
     });
-    HunterService.saveHunter(hunter);
+
+    // ✅ ensure user exists before saving
+    await AuthService.signInAnon();
+
+    await HunterService.saveHunter(hunter);
   }
 
   @override
@@ -83,7 +87,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       trailing: quest.completed
                           ? const Icon(Icons.check, color: Colors.green)
                           : ElevatedButton(
-                              onPressed: () => completeQuest(quest),
+                              onPressed: () async => await completeQuest(quest),
                               child: const Text('Complete'),
                             ),
                     ),

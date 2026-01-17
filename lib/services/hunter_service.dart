@@ -6,9 +6,13 @@ class HunterService {
   static final _db = FirebaseFirestore.instance;
 
   static Future<void> saveHunter(Hunter hunter) async {
-    final uid = FirebaseAuth.instance.currentUser!.uid;
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      // optional: print('No user yet, skipping save');
+      return;
+    }
 
-    await _db.collection('hunters').doc(uid).set({
+    await _db.collection('hunters').doc(user.uid).set({
       'level': hunter.level,
       'currentExp': hunter.currentExp,
       'expToNextLevel': hunter.expToNextLevel,
