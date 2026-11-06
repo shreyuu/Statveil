@@ -1,0 +1,44 @@
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "statveil",
+          "appId": "1:102306664789:android:15b6a229168d86b7f4dfdc",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "ios": {
+        "default": {
+          "projectId": "statveil",
+          "appId": "1:102306664789:ios:3a3dacf48351babaf4dfdc",
+          "uploadDebugSymbols": false,
+          "fileOutput": "ios/Runner/GoogleService-Info.plist"
+        }
+      },
+      "macos": {
+        "default": {
+          "projectId": "statveil",
+          "appId": "1:102306664789:ios:3a3dacf48351babaf4dfdc",
+          "uploadDebugSymbols": false,
+          "fileOutput": "macos/Runner/GoogleService-Info.plist"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "statveil",
+          "configurations": {
+            "android": "1:102306664789:android:15b6a229168d86b7f4dfdc",
+            "ios": "1:102306664789:ios:3a3dacf48351babaf4dfdc",
+            "macos": "1:102306664789:ios:3a3dacf48351babaf4dfdc",
+            "web": "1:102306664789:web:555224e6574ba10af4dfdc",
+            "windows": "1:102306664789:web:922c3f09e1c2922df4dfdc"
+          }
+        }
+      }
+    }
+  },
+  "firestore": {
+    "rules": "firestore.rules"
+  }
+}

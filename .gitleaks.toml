@@ -1,0 +1,14 @@
+# Default gitleaks rules, minus known false positives.
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "CocoaPods checksums look like generic API keys"
+paths = ['''(^|/)Podfile\.lock$''']
+
+# The built-in gcp-api-key rule needs a quote/space/; after the key, so it misses
+# plist/XML like <string>AIza…</string> (how the macOS key leaked).
+[[rules]]
+id = "google-api-key-any"
+description = "Google API key in any file format"
+regex = '''AIza[\w-]{35}'''
