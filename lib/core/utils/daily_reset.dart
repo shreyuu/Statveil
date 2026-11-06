@@ -9,23 +9,29 @@ class DailyReset {
         now.year != lastUpdated.year;
   }
 
+  /// Resets the day if it has changed since [Hunter.lastUpdated]; true if it did.
+  static bool rollOver(Hunter hunter, List<Quest> dailyQuests) {
+    if (!shouldReset(hunter.lastUpdated)) return false;
+    resetDay(hunter: hunter, dailyQuests: dailyQuests);
+    return true;
+  }
+
+  // shortcut: a multi-day gap is scored as one missed day; penalise each day if that matters.
   static void resetDay({
     required Hunter hunter,
     required List<Quest> dailyQuests,
   }) {
-    final incomplete = dailyQuests.where((q) => !q.completed).toList();
+    final missed = dailyQuests
+        .where((q) => !hunter.completedQuestIds.contains(q.id))
+        .length;
 
-    if (incomplete.isEmpty) {
+    if (missed == 0) {
       hunter.incrementStreak();
     } else {
-      hunter.applyPenalty(allMissed: incomplete.length == dailyQuests.length);
+      hunter.applyPenalty(allMissed: missed == dailyQuests.length);
     }
 
-    // Reset quests
-    for (final quest in dailyQuests) {
-      quest.completed = false;
-    }
-
+    hunter.completedQuestIds.clear();
     hunter.lastUpdated = DateTime.now();
   }
 }

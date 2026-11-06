@@ -1,28 +1,29 @@
+import '../../models/hunter.dart';
 import 'quest_model.dart';
 
 class QuestService {
   static List<Quest> getDailyQuests() {
-    return [
+    return const [
       Quest(
         id: 'q1',
         title: 'Code for 1 hour',
         type: QuestType.daily,
         difficulty: Difficulty.medium,
-        stat: 'INT',
+        stat: Stat.intelligence,
       ),
       Quest(
         id: 'q2',
         title: 'Workout 30 minutes',
         type: QuestType.daily,
         difficulty: Difficulty.medium,
-        stat: 'STR',
+        stat: Stat.str,
       ),
       Quest(
         id: 'q3',
         title: 'Sleep before 12',
         type: QuestType.daily,
         difficulty: Difficulty.easy,
-        stat: 'VIT',
+        stat: Stat.vit,
       ),
     ];
   }

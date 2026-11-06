@@ -1,3 +1,5 @@
+import '../../models/hunter.dart';
+
 enum QuestType { daily, side, boss }
 
 enum Difficulty { easy, medium, hard, boss }
@@ -7,15 +9,13 @@ class Quest {
   final String title;
   final QuestType type;
   final Difficulty difficulty;
-  final String stat; // STR, INT, AGI, etc.
-  bool completed;
+  final Stat stat;
 
-  Quest({
+  const Quest({
     required this.id,
     required this.title,
     required this.type,
     required this.difficulty,
     required this.stat,
-    this.completed = false,
   });
 }

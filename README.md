@@ -34,10 +34,27 @@ To build and run the project, you'll need to have the Flutter SDK installed.
    flutter pub get
    ```
 
-4. **Run the app:**
+4. **Configure Firebase** (see below), then **run the app:**
    ```bash
    flutter run
    ```
+
+## Firebase setup
+
+The Firebase config files (`lib/firebase_options.dart`, `android/app/google-services.json`, `ios/Runner/GoogleService-Info.plist`, `macos/Runner/GoogleService-Info.plist`) are gitignored, so a fresh clone won't build until you generate them:
+
+```bash
+dart pub global activate flutterfire_cli
+flutterfire configure --project=statveil
+```
+
+In the Firebase console, enable **Authentication → Sign-in method → Anonymous**. Then deploy the Firestore rules, which let each user read and write only their own `hunters/{uid}` document:
+
+```bash
+firebase deploy --only firestore:rules --project statveil
+```
+
+Restrict each API key in Google Cloud Console (APIs & Services → Credentials) to its platform (Android package, iOS bundle ID, web referrers) and to the Firebase APIs the app uses.
 
 ## Project Structure
 
@@ -47,6 +64,7 @@ To build and run the project, you'll need to have the Flutter SDK installed.
 - `lib/models/hunter.dart` - Character data model
 - `lib/services/` - Business logic services
 - `lib/core/utils/` - Utility functions
+- `firestore.rules` - Firestore security rules
 
 ## Development Conventions
 
