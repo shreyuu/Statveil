@@ -4,13 +4,14 @@ A Solo-Leveling-inspired productivity gamification app built with Flutter. Track
 
 ## Features
 
-- **Character Stats**: Track and improve your STR, INT, AGI, VIT, and WILL attributes
-- **Daily Quests**: Complete assigned quests to gain experience and level up
+- **Character Stats**: Track and improve your STR, INT, AGI, VIT, and WILL attributes, shown on the dashboard
+- **Daily Quests**: Complete your daily quests to gain experience and level up
+- **Custom Quests**: Add or delete your own quests, with any difficulty and the stat each one trains
 - **Experience System**: Earn EXP based on quest difficulty (Easy: 10, Medium: 25, Hard: 50, Boss: 100)
 - **Leveling**: Progress through levels as you gain experience
 - **Streak System**: Maintain consecutive days of completed quests for motivation
-- **Daily Reset**: Automatic daily reset with penalties for missed quests
-- **Cross-Platform**: Runs on Windows, macOS, Linux, iOS, Android, and Web
+- **Daily Reset**: Automatic reset at midnight with penalties for missed quests; each fully missed day costs a level
+- **Cross-Platform**: Runs on Windows, macOS, iOS, Android, and Web
 
 ## Building and Running
 

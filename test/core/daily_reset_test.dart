@@ -83,5 +83,39 @@ void main() {
       expect(hunter.completedQuestIds, isEmpty);
       expect(DailyReset.shouldReset(hunter.lastUpdated), isFalse);
     });
+
+    test('each fully skipped day in a multi-day gap costs a level', () {
+      // Last open 3 days ago with every quest done: that day extends the
+      // streak, then the 2 untouched days in between each cost a level.
+      final hunter = Hunter(
+        level: 5,
+        currentExp: 40,
+        streak: 3,
+        lastUpdated: DateTime.now().subtract(const Duration(days: 3)),
+        completedQuestIds: {...allIds},
+      );
+
+      DailyReset.rollOver(hunter, quests);
+
+      expect(hunter.level, 3);
+      expect(hunter.expToNextLevel, 300);
+      expect(hunter.currentExp, 0);
+      expect(hunter.streak, 0);
+    });
+
+    test('a day with no quests neither rewards nor penalises', () {
+      final hunter = Hunter(
+        level: 2,
+        streak: 2,
+        lastUpdated: DateTime.now().subtract(const Duration(days: 3)),
+        quests: [],
+      );
+
+      final rolled = DailyReset.rollOver(hunter, hunter.quests);
+
+      expect(rolled, isTrue);
+      expect(hunter.level, 2);
+      expect(hunter.streak, 2);
+    });
   });
 }

@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:statveil/features/quests/quest_model.dart';
 import 'package:statveil/models/hunter.dart';
 
 void main() {
@@ -60,11 +61,17 @@ void main() {
 
   group('applyPenalty', () {
     test('missing every quest drops a level and resets exp and streak', () {
-      final hunter = Hunter(level: 3, currentExp: 40, streak: 5);
+      final hunter = Hunter(
+        level: 3,
+        currentExp: 40,
+        expToNextLevel: 300,
+        streak: 5,
+      );
 
       hunter.applyPenalty(allMissed: true);
 
       expect(hunter.level, 2);
+      expect(hunter.expToNextLevel, 200);
       expect(hunter.currentExp, 0);
       expect(hunter.streak, 0);
     });
@@ -94,11 +101,45 @@ void main() {
         streak: 7,
         lastUpdated: DateTime(2026, 11, 5, 9, 30),
         completedQuestIds: {'q1', 'q3'},
+        quests: [
+          const Quest(
+            id: 'c1',
+            title: 'Read 20 pages',
+            type: QuestType.daily,
+            difficulty: Difficulty.boss,
+            stat: Stat.will,
+          ),
+        ],
       );
 
       final copy = Hunter.fromMap(original.toMap());
 
       expect(copy.toMap(), original.toMap());
+      final quest = copy.quests.single;
+      expect(quest.id, 'c1');
+      expect(quest.title, 'Read 20 pages');
+      expect(quest.difficulty, Difficulty.boss);
+      expect(quest.stat, Stat.will);
+    });
+
+    test('keeps a saved quest with unknown enum values, using defaults', () {
+      final hunter = Hunter.fromMap({
+        'quests': [
+          {
+            'id': 'c1',
+            'title': 'Mystery',
+            'type': 'weekly',
+            'difficulty': 'legendary',
+            'stat': 'luck',
+          },
+        ],
+      });
+
+      final quest = hunter.quests.single;
+      expect(quest.title, 'Mystery');
+      expect(quest.type, QuestType.daily);
+      expect(quest.difficulty, Difficulty.easy);
+      expect(quest.stat, Stat.str);
     });
 
     test('reads documents saved before completedQuestIds existed', () {
@@ -120,6 +161,7 @@ void main() {
       expect(hunter.intStat, 4);
       expect(hunter.lastUpdated, DateTime(2026, 1, 15));
       expect(hunter.completedQuestIds, isEmpty);
+      expect(hunter.quests.map((q) => q.id), ['q1', 'q2', 'q3']);
     });
 
     test('falls back to defaults for an empty document', () {
@@ -129,5 +171,34 @@ void main() {
       expect(hunter.expToNextLevel, 100);
       expect(hunter.completedQuestIds, isEmpty);
     });
+  });
+
+  group('quests', () {
+    test('a new hunter starts with the three starter quests', () {
+      expect(Hunter().quests.map((q) => q.id), ['q1', 'q2', 'q3']);
+    });
+
+    test('quests can be added and removed', () {
+      final hunter = Hunter();
+
+      hunter.quests.add(
+        const Quest(
+          id: 'c1',
+          title: 'Read',
+          type: QuestType.daily,
+          difficulty: Difficulty.hard,
+          stat: Stat.intelligence,
+        ),
+      );
+      hunter.quests.removeWhere((q) => q.id == 'q1');
+
+      expect(hunter.quests.map((q) => q.id), ['q2', 'q3', 'c1']);
+    });
+  });
+
+  test('statValue reads each stat', () {
+    final hunter = Hunter(str: 2, intStat: 3, agi: 4, vit: 5, will: 6);
+
+    expect(Stat.values.map(hunter.statValue), [2, 3, 4, 5, 6]);
   });
 }

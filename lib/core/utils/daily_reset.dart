@@ -16,22 +16,39 @@ class DailyReset {
     return true;
   }
 
-  // shortcut: a multi-day gap is scored as one missed day; penalise each day if that matters.
+  /// Scores the last active day, then charges a full miss for each untouched day since.
   static void resetDay({
     required Hunter hunter,
     required List<Quest> dailyQuests,
   }) {
-    final missed = dailyQuests
-        .where((q) => !hunter.completedQuestIds.contains(q.id))
-        .length;
+    final now = DateTime.now();
 
-    if (missed == 0) {
-      hunter.incrementStreak();
-    } else {
-      hunter.applyPenalty(allMissed: missed == dailyQuests.length);
+    // With no quests there is nothing to score, so no free streak and no penalty.
+    if (dailyQuests.isNotEmpty) {
+      final missed = dailyQuests
+          .where((q) => !hunter.completedQuestIds.contains(q.id))
+          .length;
+
+      if (missed == 0) {
+        hunter.incrementStreak();
+      } else {
+        hunter.applyPenalty(allMissed: missed == dailyQuests.length);
+      }
+
+      final skippedDays = _calendarDaysBetween(hunter.lastUpdated, now) - 1;
+      for (var day = 0; day < skippedDays; day++) {
+        hunter.applyPenalty(allMissed: true);
+      }
     }
 
     hunter.completedQuestIds.clear();
-    hunter.lastUpdated = DateTime.now();
+    hunter.lastUpdated = now;
   }
+
+  // UTC dates so a DST change can't turn a calendar day into 23 hours.
+  static int _calendarDaysBetween(DateTime from, DateTime to) => DateTime.utc(
+    to.year,
+    to.month,
+    to.day,
+  ).difference(DateTime.utc(from.year, from.month, from.day)).inDays;
 }

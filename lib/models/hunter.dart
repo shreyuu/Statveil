@@ -1,4 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../features/quests/quest_model.dart';
+import '../features/quests/quest_service.dart';
 
 enum Stat {
   str('STR'),
@@ -28,6 +30,9 @@ class Hunter {
   /// Quest ids completed since the last daily reset.
   final Set<String> completedQuestIds;
 
+  /// The hunter's daily quests; stored on the same document so `set()` saves them together.
+  final List<Quest> quests;
+
   Hunter({
     this.level = 1,
     this.currentExp = 0,
@@ -40,8 +45,11 @@ class Hunter {
     this.streak = 0,
     DateTime? lastUpdated,
     Set<String>? completedQuestIds,
+    List<Quest>? quests,
   }) : lastUpdated = lastUpdated ?? DateTime.now(),
-       completedQuestIds = completedQuestIds ?? <String>{};
+       completedQuestIds = completedQuestIds ?? <String>{},
+       // Copy: the starter list is const, and quests get added and removed.
+       quests = quests ?? [...QuestService.getDailyQuests()];
 
   /// Field names match documents already saved in Firestore ('int', not 'intStat').
   factory Hunter.fromMap(Map<String, dynamic> map) => Hunter(
@@ -58,6 +66,9 @@ class Hunter {
     completedQuestIds: (map['completedQuestIds'] as List<dynamic>?)
         ?.cast<String>()
         .toSet(),
+    quests: (map['quests'] as List<dynamic>?)
+        ?.map((q) => Quest.fromMap(Map<String, dynamic>.from(q as Map)))
+        .toList(),
   );
 
   Map<String, dynamic> toMap() => {
@@ -72,6 +83,15 @@ class Hunter {
     'streak': streak,
     'lastUpdated': Timestamp.fromDate(lastUpdated),
     'completedQuestIds': completedQuestIds.toList(),
+    'quests': quests.map((q) => q.toMap()).toList(),
+  };
+
+  int statValue(Stat stat) => switch (stat) {
+    Stat.str => str,
+    Stat.intelligence => intStat,
+    Stat.agi => agi,
+    Stat.vit => vit,
+    Stat.will => will,
   };
 
   /// Returns false (and awards nothing) if the quest was already completed today.
@@ -118,6 +138,7 @@ class Hunter {
   void applyPenalty({required bool allMissed}) {
     if (allMissed) {
       if (level > 1) level--;
+      expToNextLevel = level * 100;
       currentExp = 0;
       streak = 0;
     } else {
